@@ -1,15 +1,37 @@
+/**
+ * TODO - find a better mechanism for sqlite3.
+ * Currently the sqlite3 NPM module doesn't run under Electron,
+ * so we're using "better-sqlite3". But is it? Maybe. It does
+ * build and run, but you sometimes have to run npm rebuild from
+ * this project to fix the node library version.
+ *
+ * This API screams for a database mapping tool. VERY unDRY.
+ */
 import {Task} from '../../shared/task';
+// I use UUID generation for primary keys to make the example
+// simple. Famous last words...
+
+// NOTE - apparently this is broken with import statements, and
+// only works if you alias the v4 function to another name. Took
+// a LOT of searching to find the fix, but the symptom is that it
+// will complain about not having access to a crypto API
 const uuidv4 = require('uuid').v4;
+
+// Node APIs should use require, not import, as well
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require('path');
 
-console.log(`database path root: ${__dirname}`);
-// TODO - externalize setup of DB to root-level and do schema gen 1x
+// TODO - externalize setup of DB to root-level
 const dbPath = path.join(__dirname,'../../thelight.db');
 
+// NOTE - another oddball dependency import example. You need to
+// import the better-sqlite3 root, but do it via require, so it
+// loads properly. Using import fails.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const db = require('better-sqlite3')(dbPath, {});
 
+// TODO - externalize management of schema. This is plain dumb
+// and needs a better approach. Migrations anyone?
 export function initialize(): Promise<void> {
     return new Promise((resolve, reject) => {
         console.log(`Startup!`);
@@ -24,8 +46,6 @@ export function initialize(): Promise<void> {
                   completed   date          null
               )
             `);
-            console.log(`Logging in!`);
-            console.dir(db);
             resolve();
         } catch (e) {
             reject(e);
@@ -44,9 +64,23 @@ export function getAll(): Promise<Task[]> {
                        completed
                 FROM Tasks
             `);
+            // n.b. - all brings all rows back - don't use get (see below)
             const result = stmt.all();
-            console.dir(result);
-            resolve(result);
+            if (result) {
+              // TODO - better type conversion. Ick.
+              resolve(result.map((r: any) => ({
+                ...r,
+                  due: r.due ? new Date(r.due) : null,
+                  complete: r.complete ? new Date(r.complete) : null
+              } as Task)));
+            } else {
+              // TODO - better than this. For now, to
+              // avoid an error, just return nothing.
+              // This may never happen as hopefully no rows
+              // is an array with zero entries and hence
+              // is truthy (yes, I tested that in the console)
+              resolve([]);
+            }
         } catch (e) {
             reject(e);
         }
@@ -65,6 +99,7 @@ export function getOne(id: string): Promise<Task> {
                 FROM Tasks
                 WHERE id = ?
             `);
+            // n.b. - get brings back the 1st row
             const results = stmt.get(id);
             resolve(results);
         } catch (e) {
