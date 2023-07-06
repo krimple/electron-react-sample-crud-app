@@ -93,3 +93,4 @@ out/
 
 # Ken's additions
 *.db
+.idea

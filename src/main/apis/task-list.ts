@@ -3,8 +3,9 @@ const uuidv4 = require('uuid').v4;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require('path');
 
+console.log(`database path root: ${__dirname}`);
 // TODO - externalize setup of DB to root-level and do schema gen 1x
-const dbPath = path.join(__dirname,'../../mylite.db');
+const dbPath = path.join(__dirname,'../../thelight.db');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const db = require('better-sqlite3')(dbPath, {});
@@ -43,7 +44,8 @@ export function getAll(): Promise<Task[]> {
                        completed
                 FROM Tasks
             `);
-            const result = stmt.get();
+            const result = stmt.all();
+            console.dir(result);
             resolve(result);
         } catch (e) {
             reject(e);

@@ -15,5 +15,9 @@ contextBridge.exposeInMainWorld('MainAPI', {
         const uuid = ipcRenderer.sendSync('add-task', task);
         console.log(`Response returned: ${JSON.stringify(uuid, null, 2)}`);
         return uuid;
+    },
+    getAllTasks: (): Task[] => {
+        const tasks = ipcRenderer.sendSync('get-all-tasks');
+        return tasks;
     }
 });

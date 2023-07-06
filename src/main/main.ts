@@ -1,7 +1,7 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow} from 'electron';
 import path from 'path';
-import type {IpcMainEvent} from 'electron';
-import {initialize, addTask} from './apis/task-list';
+import {initialize} from './apis/task-list';
+import {setupTaskHandlers} from './apis/event_handlers';
 
 /** Handle creating/removing shortcuts on Windows when installing/uninstalling. */
 if (require('electron-squirrel-startup')) {
@@ -104,17 +104,4 @@ function createMainWindow() {
  * You can also put them in separate files and import them here.
  */
 
-ipcMain.on('add-task', (e: IpcMainEvent, arg: any) => {
-  (async () => {
-    try {
-      console.log(`add-task. Got ${JSON.stringify(arg, null, 2)} as arg`);
-      const uuid = await addTask(arg);
-      console.log(`Got uuid back from addTask ${uuid}`);
-      e.returnValue = uuid;
-      e.reply('add-task-response', uuid);
-    } catch (error) {
-      e.returnValue = error;
-      console.error(error);
-    }
-  })();
-});
+setupTaskHandlers();

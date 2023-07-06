@@ -11,7 +11,7 @@ function DBInserter() {
             due: new Date()
         } as Task);
         console.dir(uuid);
-        // setUUID(uuid);
+        setUUID(uuid);
     }, [])
     return (
         <>
