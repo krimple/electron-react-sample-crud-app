@@ -1,5 +1,5 @@
 /**
- * TODO - find a better mechanism for sqlite3.
+ * TODO - find a better mechanism for using sqlite3 from electron.
  * Currently the sqlite3 NPM module doesn't run under Electron,
  * so we're using "better-sqlite3". But is it? Maybe. It does
  * build and run, but you sometimes have to run npm rebuild from
@@ -101,7 +101,15 @@ export function getOne(id: string): Promise<Task> {
             `);
             // n.b. - get brings back the 1st row
             const results = stmt.get(id);
-            resolve(results);
+            if (!results) {
+              // TODO - test this and check for ipc calls
+              throw new Error('no row found');
+            }
+            resolve({
+              ...results,
+              due: results.due ? new Date(results.due) : null,
+              complete: results.complete ? new Date(results.complete) : null
+            } as Task);
         } catch (e) {
             reject(e);
         }
@@ -124,6 +132,7 @@ export function addTask(task: Task): Promise<string> {
     });
 }
 
+// TODO - test date parsing
 export function updateTask(task: Task) : Promise<null> {
     return new Promise((resolve, reject)=> {
         try {
