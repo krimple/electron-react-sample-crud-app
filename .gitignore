@@ -90,3 +90,6 @@ typings/
 
 # Electron-Forge
 out/
+
+# Ken's additions
+*.db
