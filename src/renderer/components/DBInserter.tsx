@@ -1,11 +1,17 @@
 import {useCallback, useState} from "react";
+import {Task} from '../../shared/task';
 
 function DBInserter() {
     const [uuid, setUUID] = useState<string|null>(null);
 
     const insertData = useCallback(async () => {
-        const uuid = await window.MainAPI.dbInsert();
-        setUUID(uuid);
+        const uuid = await window.MainAPI.dbInsert({
+            description: 'Foo',
+            priority: 3,
+            due: new Date()
+        } as Task);
+        console.dir(uuid);
+        // setUUID(uuid);
     }, [])
     return (
         <>

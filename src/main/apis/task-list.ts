@@ -1,6 +1,5 @@
 import {Task} from '../../shared/task';
-
-import {v4} from 'uuid';
+const uuidv4 = require('uuid').v4;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require('path');
 
@@ -73,9 +72,9 @@ export function getOne(id: string): Promise<Task> {
 }
 
 export function addTask(task: Task): Promise<string> {
-    const id = v4();
     return new Promise((resolve, reject)=> {
         try {
+            const id = uuidv4();
             const stmt = db.prepare(`
                         INSERT INTO Tasks(id, description, priority, due)
                         VALUES (?, ?, ?, ?)`);

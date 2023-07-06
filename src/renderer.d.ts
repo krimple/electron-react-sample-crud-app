@@ -2,7 +2,7 @@ import {Task} from './shared/task'
 
 export interface IMainAPI {
     raiseFileChooserDialog: () => string
-    dbInsert: (task: Task) => void
+    dbInsert: (task: Task) => string
     sayHello: () => void
 }
 

@@ -11,7 +11,9 @@ contextBridge.exposeInMainWorld('MainAPI', {
         console.log(`dialog response: ${response}`);
         return response;
     },
-    dbInsert: (task: Task): void => {
-        ipcRenderer.send('add-task', task);
+    dbInsert: (task: Task): string => {
+        const uuid = ipcRenderer.sendSync('add-task', task);
+        console.log(`Response returned: ${JSON.stringify(uuid, null, 2)}`);
+        return uuid;
     }
 });
